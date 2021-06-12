@@ -24,4 +24,7 @@
 (define create-hash (lambda (x y z) (make-hash (create-hash-helper x y z))))
 (define parse (lambda (y x) (cond ((eq? x '()) '())  ( (list? x)  (cons (parse y (car x)) (parse y (cdr x))))  ((eq? x '+ ) 'add ) ((eq? x '- ) 'sub ) ((eq? x '* ) 'mul ) ((eq? x 'relu ) 'relu )
 ((eq? x 'mse ) 'mse ) ((number? x) (num x 0.0) )  (else (car (list (hash-ref y x)) ) )) ) ) 
-
+(define grad (lambda (x y z t)  (num-grad (eval(parse (create-hash x y z) t)) )))
+(define member (lambda (x y) (cond ((eq? y '() ) #f ) ((eq? x (car y)) #t)  (else (member x (cdr y)))) ))
+(define partial-grad-helper (lambda (x xc y z t) (if (eq? xc '()) '() (cons (if (member (car xc) z) (grad x y (car xc) t) (grad x y '() t)) (partial-grad-helper x (cdr xc) y z t))   )))
+(define partial-grad (lambda (x y z t) (partial-grad-helper x x y z t)))
