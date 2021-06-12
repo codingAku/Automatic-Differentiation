@@ -28,3 +28,7 @@
 (define member (lambda (x y) (cond ((eq? y '() ) #f ) ((eq? x (car y)) #t)  (else (member x (cdr y)))) ))
 (define partial-grad-helper (lambda (x xc y z t) (if (eq? xc '()) '() (cons (if (member (car xc) z) (grad x y (car xc) t) (grad x y '() t)) (partial-grad-helper x (cdr xc) y z t))   )))
 (define partial-grad (lambda (x y z t) (partial-grad-helper x x y z t)))
+(define helper-mul (lambda (x y) (if (eq? y '()) '() (cons (* (car y) x) (helper-mul x (cdr y))))))
+(define gradient-descent (lambda (names values vars lr exp) (map - values (helper-mul lr (partial-grad names values vars exp)))))
+(define optimizeHelper (lambda (names values vars lr k exp) (if (= k 0) '() (cons  (gradient-descent names values vars lr exp) (optimizeHelper names (gradient-descent names values vars lr exp) vars lr (- k 1) exp) )  )))
+(define optimize (lambda (names values vars lr k exp) (car (reverse (optimizeHelper names values vars lr k exp)))))
